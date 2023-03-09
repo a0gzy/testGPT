@@ -16,7 +16,7 @@
 	<div class="chat-header">
 		{type === 'user' ? 'Me' : 'Bot'}
 	</div>
-	<div class="chat-bubble {type === 'user' ? 'chat-bubble-primary' : 'chat-bubble-secondary'}">
+	<div class="chat-bubble whitespace-pre-wrap {type === 'user' ? 'chat-bubble-primary' : 'chat-bubble-secondary'}">
 		{message}
 	</div>
 </div>
