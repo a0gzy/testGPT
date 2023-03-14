@@ -53,7 +53,7 @@ export const POST: RequestHandler = async ({ request }) => {
 		}
 
 		const prompt =
-			'Ты виртуальный ассистент, который может ответить почти на каждый вопрос'
+			'Ты виртуальный ассистент, который может ответить почти на каждый вопрос.'
 		tokenCount += getTokens(prompt)
 
 		if (tokenCount >= 4000) {

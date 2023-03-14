@@ -14,9 +14,9 @@
 		</div>
 	</div>
 	<div class="chat-header">
-		{type === 'user' ? 'Me' : 'Bot'}
+		{type === 'user' ? 'Me' : 'GPT3.5'}
 	</div>
-	<div class="chat-bubble whitespace-pre-wrap {type === 'user' ? 'chat-bubble-primary' : 'chat-bubble-secondary'}">
+	<div class="chat-bubble whitespace-pre-wrap {type === 'user' ? 'chat-bubble-primary' : 'chat-bubble-info bg-gray-700 bg-gradient-to-r from-gray-700 to-gray-600 text-gray-200'}">
 		{message}
 	</div>
 </div>

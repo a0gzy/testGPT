@@ -2,6 +2,7 @@
 	import ChatMessage from '$lib/components/ChatMessage.svelte'
 	import type { ChatCompletionRequestMessage } from 'openai'
 	import { SSE } from 'sse.js'
+	import { getTokens } from '$lib/tokenizer'
 
 	let query: string = ''
 	let answer: string = ''
@@ -15,8 +16,35 @@
 		}, 100)
 	}
 
+	function getAllTokens(){
+		let tokenCount = 0
+
+		chatMessages.forEach((msg) => {
+			const tokens = getTokens(msg.content)
+			tokenCount += tokens
+		})
+
+		const prompt =
+			'Ты виртуальный ассистент, который может ответить почти на каждый вопрос.'
+		tokenCount += getTokens(prompt)
+
+		// if (tokenCount >= 4000) {
+		// 	chatMessages = []
+		// }
+
+		return tokenCount
+	}
+
 	const handleSubmit = async () => {
 		loading = true
+
+		if(chatMessages.length > 1){
+			const lastMsg = chatMessages[chatMessages.length - 1]
+			if(lastMsg.content === "Следующий вопрос обновит запросы"){
+				chatMessages = []
+			}
+		}
+
 		chatMessages = [...chatMessages, { role: 'user', content: query }]
 
 		const eventSource = new SSE('/api/chat', {
@@ -31,11 +59,16 @@
 		eventSource.addEventListener('error', handleError)
 
 		eventSource.addEventListener('message', (e) => {
+
 			scrollToBottom()
 			try {
 				loading = false
 				if (e.data === '[DONE]') {
 					chatMessages = [...chatMessages, { role: 'assistant', content: answer }]
+					const tokenCounts = getAllTokens()
+					if(tokenCounts >= 4000){
+						chatMessages = [...chatMessages, { role: 'assistant', content: "Следующий вопрос обновит запросы" }]
+					}
 					answer = ''
 					return
 				}
@@ -47,6 +80,12 @@
 					answer = (answer ?? '') + delta.content
 				}
 			} catch (err) {
+				if(err instanceof Error){
+					if(err.name == "Query too large"){
+						console.log("qtl")
+						chatMessages = []
+					}
+				}
 				handleError(err)
 			}
 		})
@@ -59,6 +98,14 @@
 		query = ''
 		answer = ''
 		console.error(err)
+		if(err instanceof Error){
+			if(err.name == "Query flagged by openai"){
+				chatMessages = [...chatMessages, { role: 'assistant', content: "OpenAi moderation error" }]
+			}
+		}
+		if (getAllTokens() >= 4000) {
+			chatMessages = []
+		}
 	}
 </script>
 
