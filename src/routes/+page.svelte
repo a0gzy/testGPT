@@ -117,6 +117,7 @@
 </script>
 
 <div class="flex flex-col pt-4 w-full h-screen px-8 items-center gap-2">
+	<div class="absolute flex justify-center items-center center bottom-0 text-[4px] text-gray-500">чел траву потрогай</div>
 	<div class="h-[calc(100%-100px)] w-full bg-gray-900 rounded-md p-4 overflow-y-auto flex flex-col gap-4">
 		<div class="flex flex-col gap-2">
 			<ChatMessage type="assistant" message="Привет, спрашивайте меня что хотите!" />
