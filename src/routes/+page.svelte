@@ -46,6 +46,9 @@
 		// 		chatMessages = []
 		// 	}
 		// }
+		if(systemMessage.startsWith("Error: ")){
+			systemMessage = ""
+		}
 
 		if(systemMessage === "Следующий вопрос обновит запросы" ){
 			chatMessages = []
@@ -107,8 +110,8 @@
 		let resp = JSON.parse(respS)
 		let error: MyData = JSON.parse(resp.data)
 		if(error !== undefined){
-			systemMessage = error.error
-			//chatMessages = [...chatMessages, { role: 'assistant', content: "Error: " + error.error }]
+			systemMessage = "Error: " + error.error
+			// chatMessages = [...chatMessages, { role: 'assistant', content: "Error: " + error.error }]
 		}
 	}
 </script>
