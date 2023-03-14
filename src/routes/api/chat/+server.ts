@@ -93,6 +93,9 @@ export const POST: RequestHandler = async ({ request }) => {
 		})
 	} catch (err) {
 		console.error(err)
+		if(err instanceof Error ){
+			return json({ error: err.message }, { status: 500 })
+		}
 		return json({ error: 'There was an error processing your request' }, { status: 500 })
 	}
 }

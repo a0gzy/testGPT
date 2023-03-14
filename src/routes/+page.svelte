@@ -3,6 +3,7 @@
 	import type { ChatCompletionRequestMessage } from 'openai'
 	import { SSE } from 'sse.js'
 	import { getTokens } from '$lib/tokenizer'
+	import { json } from '@sveltejs/kit'
 
 	let query: string = ''
 	let answer: string = ''
@@ -80,12 +81,6 @@
 					answer = (answer ?? '') + delta.content
 				}
 			} catch (err) {
-				if(err instanceof Error){
-					if(err.name == "Query too large"){
-						console.log("qtl")
-						chatMessages = []
-					}
-				}
 				handleError(err)
 			}
 		})
@@ -93,16 +88,20 @@
 		scrollToBottom()
 	}
 
+	interface MyData { error: string; }
+
 	function handleError<T>(err: T) {
 		loading = false
 		query = ''
 		answer = ''
-		console.error(err)
 		if (getAllTokens() >= 4000) {
 			chatMessages = []
 		}
-		if(err instanceof Error){
-			chatMessages = [...chatMessages, { role: 'assistant', content: err.name }]
+		let respS = JSON.stringify(err)
+		let resp = JSON.parse(respS)
+		let error: MyData = JSON.parse(resp.data)
+		if(error !== undefined){
+			chatMessages = [...chatMessages, { role: 'assistant', content: "Error: " + error.error }]
 		}
 	}
 </script>
