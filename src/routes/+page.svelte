@@ -98,13 +98,11 @@
 		query = ''
 		answer = ''
 		console.error(err)
-		if(err instanceof Error){
-			if(err.name == "Query flagged by openai"){
-				chatMessages = [...chatMessages, { role: 'assistant', content: "OpenAi moderation error" }]
-			}
-		}
 		if (getAllTokens() >= 4000) {
 			chatMessages = []
+		}
+		if(err instanceof Error){
+			chatMessages = [...chatMessages, { role: 'assistant', content: err.name }]
 		}
 	}
 </script>
