@@ -10,6 +10,7 @@
 	let loading: boolean = false
 	let chatMessages: ChatCompletionRequestMessage[] = []
 	let scrollToDiv: HTMLDivElement
+	let systemMessage: string = ""
 
 	function scrollToBottom() {
 		setTimeout(function () {
@@ -39,11 +40,16 @@
 	const handleSubmit = async () => {
 		loading = true
 
-		if(chatMessages.length > 1){
-			const lastMsg = chatMessages[chatMessages.length - 1]
-			if(lastMsg.content === "Следующий вопрос обновит запросы"){
-				chatMessages = []
-			}
+		// if(chatMessages.length > 1){
+		// 	const lastMsg = chatMessages[chatMessages.length - 1]
+		// 	if(lastMsg.content === "Следующий вопрос обновит запросы"){
+		// 		chatMessages = []
+		// 	}
+		// }
+
+		if(systemMessage === "Следующий вопрос обновит запросы" ){
+			chatMessages = []
+			systemMessage = ""
 		}
 
 		chatMessages = [...chatMessages, { role: 'user', content: query }]
@@ -66,9 +72,9 @@
 				loading = false
 				if (e.data === '[DONE]') {
 					chatMessages = [...chatMessages, { role: 'assistant', content: answer }]
-					const tokenCounts = getAllTokens()
-					if(tokenCounts >= 4000){
-						chatMessages = [...chatMessages, { role: 'assistant', content: "Следующий вопрос обновит запросы" }]
+					if(getAllTokens() >= 4000){
+						systemMessage = "Следующий вопрос обновит запросы"
+						// chatMessages = [...chatMessages, { role: 'assistant', content: "Следующий вопрос обновит запросы" }]
 					}
 					answer = ''
 					return
@@ -94,14 +100,15 @@
 		loading = false
 		query = ''
 		answer = ''
-		if (getAllTokens() >= 4000) {
-			chatMessages = []
-		}
+		// if (getAllTokens() >= 4000) {
+		// 	chatMessages = []
+		// }
 		let respS = JSON.stringify(err)
 		let resp = JSON.parse(respS)
 		let error: MyData = JSON.parse(resp.data)
 		if(error !== undefined){
-			chatMessages = [...chatMessages, { role: 'assistant', content: "Error: " + error.error }]
+			systemMessage = error.error
+			//chatMessages = [...chatMessages, { role: 'assistant', content: "Error: " + error.error }]
 		}
 	}
 </script>
@@ -118,6 +125,9 @@
 			{/if}
 			{#if loading}
 				<ChatMessage type="assistant" message="Loading.." />
+			{/if}
+			{#if systemMessage}
+				<ChatMessage type="assistant" message={systemMessage} />
 			{/if}
 		</div>
 		<div class="" bind:this={scrollToDiv} />
