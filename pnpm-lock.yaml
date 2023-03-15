@@ -8,6 +8,7 @@ specifiers:
   '@types/common-tags': ^1.8.1
   '@typescript-eslint/eslint-plugin': ^5.54.0
   '@typescript-eslint/parser': ^5.54.0
+  aicommits: ^1.5.1
   autoprefixer: ^10.4.13
   daisyui: ^2.51.3
   eslint: ^8.35.0
@@ -31,6 +32,7 @@ specifiers:
   vitest: ^0.25.8
 
 dependencies:
+  aicommits: 1.5.1
   gpt3-tokenizer: 1.1.5
   openai: 3.2.1
   sse.js: 0.6.1
@@ -63,6 +65,10 @@ devDependencies:
   vitest: 0.25.8
 
 packages:
+
+  /@dqbd/tiktoken/0.4.0:
+    resolution: {integrity: sha512-iaHgmwKAOqowBFZKxelyszoeGLoNw62eOULcmyme1aA1Ymr3JgYl0V7jwpuUm7fksalycZajx3loFn9TRUaviw==}
+    dev: false
 
   /@esbuild/android-arm/0.16.17:
     resolution: {integrity: sha512-N9x1CMXVhtWEAMS7pNNONyA14f71VPQN9Cnavj1XQh6T7bskqiLLrSca4O0Vr8Wdcga943eThxnVp3JLnBMYtw==}
@@ -741,6 +747,13 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: true
+
+  /aicommits/1.5.1:
+    resolution: {integrity: sha512-waq8Q6xyWOthtyH2IukZNKxEAVvs4riMfaGx4aC/Oa6djffOwR/4OmCGOj3+XoPFMyQuSJOYUQM4tjDN+AG9XQ==}
+    hasBin: true
+    dependencies:
+      '@dqbd/tiktoken': 0.4.0
+    dev: false
 
   /ajv/6.12.6:
     resolution: {integrity: sha512-j3fVLgvTo527anyYyJOGTYJbG+vnnQYvE0m5mmkc1TK+nxAppkCLMIL0aZ4dblVCNoGShhm+kzE4ZUykBoMg4g==}
