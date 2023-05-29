@@ -48,6 +48,8 @@ export const POST: RequestHandler = async ({ request }) => {
 		const moderationData = await moderationRes.json()
 		const [results] = moderationData.results
 
+		// console.log(moderationData)
+
 		if (results.flagged) {
 			throw new Error('Query flagged by openai')
 		}
@@ -81,7 +83,11 @@ export const POST: RequestHandler = async ({ request }) => {
 			body: JSON.stringify(chatRequestOpts)
 		})
 
+		// console.log("chatResponse")
+		// console.log(await chatResponse.json())
+
 		if (!chatResponse.ok) {
+			console.log("chatResponse ok")
 			const err = await chatResponse.json()
 			throw new Error(err)
 		}

@@ -4,6 +4,7 @@
 	import { SSE } from 'sse.js'
 	import { getTokens } from '$lib/tokenizer'
 	import { json } from '@sveltejs/kit'
+	import { onMount } from 'svelte';
 
 	let query: string = ''
 	let answer: string = ''
@@ -11,6 +12,18 @@
 	let chatMessages: ChatCompletionRequestMessage[] = []
 	let scrollToDiv: HTMLDivElement
 	let systemMessage: string = ""
+
+	onMount(() => {
+		const storageChatMessages = localStorage.getItem("chatMessages")
+		if(storageChatMessages){
+			const jsonChat =  JSON.parse(storageChatMessages)
+			console.log(jsonChat)
+			chatMessages = jsonChat
+		}
+
+
+		scrollToBottom()
+	})
 
 	function scrollToBottom() {
 		setTimeout(function () {
@@ -37,31 +50,47 @@
 		return tokenCount
 	}
 
+	const handleClear = async () => {
+		chatMessages = []
+		// localStorage.setItem("chatMessages",stringChatMessages)
+		localStorage.removeItem("chatMessages")
+	}
+
 	const handleSubmit = async () => {
 		loading = true
 
-		// if(chatMessages.length > 1){
-		// 	const lastMsg = chatMessages[chatMessages.length - 1]
-		// 	if(lastMsg.content === "Следующий вопрос обновит запросы"){
-		// 		chatMessages = []
-		// 	}
-		// }
 		if(systemMessage.startsWith("Error: ")){
-			systemMessage = ""
-		}
-
-		if(systemMessage === "Следующий вопрос обновит запросы" ){
-			chatMessages = []
 			systemMessage = ""
 		}
 
 		chatMessages = [...chatMessages, { role: 'user', content: query }]
 
+		let sendMessages: ChatCompletionRequestMessage[] = []
+
+		if(chatMessages.length >= 1){
+			let tokenCount = 0
+			let reverseChatMessages = [...chatMessages].reverse()
+
+			reverseChatMessages.forEach((msg) => {
+				const tokens = getTokens(msg.content)
+				tokenCount += tokens
+				if(tokenCount < 4000){
+					sendMessages = [...sendMessages,msg]
+				}
+			})
+			
+			sendMessages = sendMessages.reverse()
+		}
+
+		// console.log(chatMessages)
+		// console.log(sendMessages)
+
 		const eventSource = new SSE('/api/chat', {
 			headers: {
 				'Content-Type': 'application/json'
 			},
-			payload: JSON.stringify({ messages: chatMessages })
+			payload: JSON.stringify({ messages: sendMessages })
+			// payload: JSON.stringify({ messages: chatMessages })
 		})
 
 		query = ''
@@ -75,10 +104,18 @@
 				loading = false
 				if (e.data === '[DONE]') {
 					chatMessages = [...chatMessages, { role: 'assistant', content: answer }]
-					if(getAllTokens() >= 4000){
-						systemMessage = "Следующий вопрос обновит запросы"
-						// chatMessages = [...chatMessages, { role: 'assistant', content: "Следующий вопрос обновит запросы" }]
-					}
+
+					// console.log(chatMessages)
+
+					const stringChatMessages = JSON.stringify(chatMessages)
+
+					// console.log(cookie)
+					// console.log(JSON.parse(cookie))
+					localStorage.setItem("chatMessages",stringChatMessages)
+
+					// if(getAllTokens() >= 4000){
+					// 	systemMessage = "Следующий вопрос обновит запросы"
+					// }
 					answer = ''
 					return
 				}
@@ -103,15 +140,11 @@
 		loading = false
 		query = ''
 		answer = ''
-		// if (getAllTokens() >= 4000) {
-		// 	chatMessages = []
-		// }
 		let respS = JSON.stringify(err)
 		let resp = JSON.parse(respS)
 		let error: MyData = JSON.parse(resp.data)
 		if(error !== undefined){
 			systemMessage = "Error: " + error.error
-			// chatMessages = [...chatMessages, { role: 'assistant', content: "Error: " + error.error }]
 		}
 	}
 </script>
@@ -136,10 +169,12 @@
 		</div>
 		<div class="" bind:this={scrollToDiv} />
 	</div>
+	
 	<form
 		class="flex w-full rounded-md gap-4 bg-gray-900 p-4"
 		on:submit|preventDefault={() => handleSubmit()}
 	>
+		<button type="button" class="btn p-1" on:click={handleClear}> Clear </button>
 		<input type="text" class="input input-bordered w-full dark:text-white text-black" bind:value={query} />
 		<button type="submit" class="btn btn-accent"> Send </button>
 	</form>
