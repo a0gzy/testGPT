@@ -108,9 +108,6 @@
 					// console.log(chatMessages)
 
 					const stringChatMessages = JSON.stringify(chatMessages)
-
-					// console.log(cookie)
-					// console.log(JSON.parse(cookie))
 					localStorage.setItem("chatMessages",stringChatMessages)
 
 					// if(getAllTokens() >= 4000){
@@ -155,7 +152,7 @@
 		<div class="flex flex-col gap-2">
 			<ChatMessage type="assistant" message="Привет, спрашивайте меня что хотите!" />
 			{#each chatMessages as message}
-				<ChatMessage type={message.role} message={message.content} />
+				<ChatMessage type={message.role} message={message.content} bind:chatMessages={chatMessages} />
 			{/each}
 			{#if answer}
 				<ChatMessage type="assistant" message={answer} />
