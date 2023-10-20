@@ -43,10 +43,6 @@
 			'Ты виртуальный ассистент, который может ответить почти на каждый вопрос.'
 		tokenCount += getTokens(prompt)
 
-		// if (tokenCount >= 4000) {
-		// 	chatMessages = []
-		// }
-
 		return tokenCount
 	}
 
